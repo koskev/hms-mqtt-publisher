@@ -15,12 +15,16 @@ use std::{
 
 pub struct SimpleMqtt<MQTT: MqttWrapper> {
     client: MQTT,
+    base_topic: String,
 }
 
 impl<MQTT: MqttWrapper> SimpleMqtt<MQTT> {
     pub fn new(config: &MqttConfig) -> Self {
         let client = MQTT::new(config, "-sm");
-        Self { client }
+        Self {
+            client,
+            base_topic: config.base_topic.clone().unwrap_or("hms800wt2".into()),
+        }
     }
 }
 
@@ -37,23 +41,29 @@ impl<MQTT: MqttWrapper> MetricCollector for SimpleMqtt<MQTT> {
         let pv_current_power = hms_state.pv_current_power as f32 / 10.;
         let pv_daily_yield = hms_state.pv_daily_yield;
 
+        let base_topic = format!("{}/{}", self.base_topic, hms_state.dtu_sn);
+
         // TODO: this section bears a lot of repetition. Investigate if there's a more idiomatic way to get the same result, perhaps using a macro
-        topic_payload_pairs.insert("hms800wt2/inverter_local_time".into(), inverter_local_time);
+        topic_payload_pairs.insert(
+            format!("{}/inverter_local_time", base_topic),
+            inverter_local_time,
+        );
 
         topic_payload_pairs.insert(
-            "hms800wt2/pv_current_power".into(),
+            format!("{}/current_power", base_topic),
             pv_current_power.to_string(),
         );
         topic_payload_pairs.insert(
-            "hms800wt2/pv_daily_yield".into(),
+            format!("{}/daily_yield", base_topic),
             pv_daily_yield.to_string(),
         );
 
+        // XXX: currently the inverter identifier is just the index in the array.
         for (idx, inverter_state) in hms_state.inverter_state.iter().enumerate() {
             let pv_grid_voltage = inverter_state.grid_voltage as f32 / 10.;
             let pv_grid_freq = inverter_state.grid_freq as f32 / 100.;
             let pv_inv_temperature = inverter_state.temperature as f32 / 10.;
-            let base_topic = format!("hms800wt2/inverter_{}", idx);
+            let base_topic = format!("{}/inverter_{}", base_topic, idx);
 
             topic_payload_pairs.insert(
                 format!("{base_topic}/grid_voltage"),
@@ -66,13 +76,13 @@ impl<MQTT: MqttWrapper> MetricCollector for SimpleMqtt<MQTT> {
             );
         }
 
-        for (idx, port_state) in hms_state.port_state.iter().enumerate() {
+        for port_state in hms_state.port_state.iter() {
             let pv_port_voltage = port_state.pv_vol as f32 / 10.;
             let pv_port_curr = port_state.pv_cur as f32 / 100.;
             let pv_port_power = port_state.pv_power as f32 / 10.;
             let pv_port_energy = port_state.pv_energy_total as f32;
             let pv_port_daily_yield = port_state.pv_daily_yield as f32;
-            let base_topic = format!("hms800wt2/port_{}", idx);
+            let base_topic = format!("{}/port_{}", base_topic, port_state.pv_port);
             topic_payload_pairs
                 .insert(format!("{base_topic}/voltage"), pv_port_voltage.to_string());
             topic_payload_pairs.insert(format!("{base_topic}/curr"), pv_port_curr.to_string());
