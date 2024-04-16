@@ -18,6 +18,16 @@ pub enum NetworkState {
     Offline,
 }
 
+trait InverterRequest {
+    fn get_cmd(&self) -> &'static [u8; 2];
+}
+
+impl InverterRequest for RealDataResDTO {
+    fn get_cmd(&self) -> &'static [u8; 2] {
+        CMD_GET_DATA
+    }
+}
+
 pub struct Inverter<'a> {
     host: &'a str,
     state: NetworkState,
@@ -42,7 +52,7 @@ impl<'a> Inverter<'a> {
 
     fn send_request<REQ, RES>(&mut self, request: REQ) -> Option<RES>
     where
-        REQ: Message,
+        REQ: Message + InverterRequest,
         RES: Message,
     {
         let request_as_bytes = request.write_to_bytes().expect("serialize to bytes");
@@ -51,7 +61,7 @@ impl<'a> Inverter<'a> {
         // compose request message
         let mut message = Vec::new();
         message.extend_from_slice(CMD_HEADER);
-        message.extend_from_slice(CMD_GET_DATA);
+        message.extend_from_slice(request.get_cmd());
         message.extend_from_slice(&self.sequence.to_be_bytes());
         message.extend_from_slice(&crc16.to_be_bytes());
         message.extend_from_slice(&len.to_be_bytes());
