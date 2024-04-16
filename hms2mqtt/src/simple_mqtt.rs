@@ -58,12 +58,11 @@ impl<MQTT: MqttWrapper> MetricCollector for SimpleMqtt<MQTT> {
             pv_daily_yield.to_string(),
         );
 
-        // XXX: currently the inverter identifier is just the index in the array.
-        for (idx, inverter_state) in hms_state.inverter_state.iter().enumerate() {
+        for inverter_state in &hms_state.inverter_state {
             let pv_grid_voltage = inverter_state.grid_voltage as f32 / 10.;
             let pv_grid_freq = inverter_state.grid_freq as f32 / 100.;
             let pv_inv_temperature = inverter_state.temperature as f32 / 10.;
-            let base_topic = format!("{}/inverter_{}", base_topic, idx);
+            let base_topic = format!("{}/inverter_{}", base_topic, inverter_state.inv_id);
 
             topic_payload_pairs.insert(
                 format!("{base_topic}/grid_voltage"),
