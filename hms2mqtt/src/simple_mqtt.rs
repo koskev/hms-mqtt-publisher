@@ -50,8 +50,6 @@ impl<MQTT: MqttWrapper> MetricCollector for SimpleMqtt<MQTT> {
             ("hms800wt2/inverter_local_time", inverter_local_time),
             ("hms800wt2/pv_current_power", pv_current_power.to_string()),
             ("hms800wt2/pv_daily_yield", pv_daily_yield.to_string()),
-            ("hms800wt2/pv_current_power", pv_current_power.to_string()),
-            ("hms800wt2/pv_daily_yield", pv_daily_yield.to_string()),
             ("hms800wt2/pv_grid_voltage", pv_grid_voltage.to_string()),
             ("hms800wt2/pv_grid_freq", pv_grid_freq.to_string()),
             (
