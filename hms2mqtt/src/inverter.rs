@@ -40,14 +40,14 @@ impl<'a> Inverter<'a> {
         }
     }
 
-    pub fn update_state(&mut self) -> Option<HMSStateResponse> {
-        self.sequence = self.sequence.wrapping_add(1);
-
-        let request = RealDataResDTO::default();
+    fn send_request<REQ, RES>(&mut self, request: REQ) -> Option<RES>
+    where
+        REQ: Message,
+        RES: Message,
+    {
         let request_as_bytes = request.write_to_bytes().expect("serialize to bytes");
         let crc16 = State::<MODBUS>::calculate(&request_as_bytes);
         let len = request_as_bytes.len() as u16 + 10u16;
-
         // compose request message
         let mut message = Vec::new();
         message.extend_from_slice(CMD_HEADER);
@@ -99,7 +99,7 @@ impl<'a> Inverter<'a> {
             return None;
         }
         let read_length = read.unwrap();
-        let parsed = HMSStateResponse::parse_from_bytes(&buf[10..read_length]);
+        let parsed = RES::parse_from_bytes(&buf[10..read_length]);
 
         if let Err(e) = parsed {
             debug!("{e}");
@@ -107,9 +107,18 @@ impl<'a> Inverter<'a> {
             return None;
         }
         debug_assert!(parsed.is_ok());
+        parsed.ok()
+    }
 
-        let response = parsed.unwrap();
-        self.set_state(NetworkState::Online);
-        Some(response)
+    pub fn update_state(&mut self) -> Option<HMSStateResponse> {
+        self.sequence = self.sequence.wrapping_add(1);
+
+        let request = RealDataResDTO::default();
+
+        if let Some(response) = self.send_request(request) {
+            self.set_state(NetworkState::Online);
+            return Some(response);
+        }
+        None
     }
 }
