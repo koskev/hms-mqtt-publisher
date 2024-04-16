@@ -8,6 +8,9 @@ use std::time::Duration;
 
 static INVERTER_PORT: &str = "10081";
 
+const CMD_HEADER: &[u8; 2] = b"HM";
+const CMD_GET_DATA: &[u8; 2] = b"\xa3\x03";
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum NetworkState {
     Unknown,
@@ -40,21 +43,15 @@ impl<'a> Inverter<'a> {
     pub fn update_state(&mut self) -> Option<HMSStateResponse> {
         self.sequence = self.sequence.wrapping_add(1);
 
-        let /*mut*/ request = RealDataResDTO::default();
-        // let date = Local::now();
-        // let time_string = date.format("%Y-%m-%d %H:%M:%S").to_string();
-        // request.ymd_hms = time_string;
-        // request.cp = 23 + sequence as i32;
-        // request.offset = 0;
-        // request.time = epoch();
-        let header = b"\x48\x4d\xa3\x03";
+        let request = RealDataResDTO::default();
         let request_as_bytes = request.write_to_bytes().expect("serialize to bytes");
         let crc16 = State::<MODBUS>::calculate(&request_as_bytes);
         let len = request_as_bytes.len() as u16 + 10u16;
 
         // compose request message
         let mut message = Vec::new();
-        message.extend_from_slice(header);
+        message.extend_from_slice(CMD_HEADER);
+        message.extend_from_slice(CMD_GET_DATA);
         message.extend_from_slice(&self.sequence.to_be_bytes());
         message.extend_from_slice(&crc16.to_be_bytes());
         message.extend_from_slice(&len.to_be_bytes());
