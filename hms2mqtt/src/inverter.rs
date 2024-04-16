@@ -101,13 +101,17 @@ impl<'a> Inverter<'a> {
         let read_length = read.unwrap();
         let parsed = RES::parse_from_bytes(&buf[10..read_length]);
 
-        if let Err(e) = parsed {
-            debug!("{e}");
-            self.set_state(NetworkState::Offline);
-            return None;
+        match parsed {
+            Ok(parsed) => {
+                self.set_state(NetworkState::Online);
+                Some(parsed)
+            }
+            Err(e) => {
+                debug!("{e}");
+                self.set_state(NetworkState::Offline);
+                None
+            }
         }
-        debug_assert!(parsed.is_ok());
-        parsed.ok()
     }
 
     pub fn update_state(&mut self) -> Option<HMSStateResponse> {
@@ -115,10 +119,6 @@ impl<'a> Inverter<'a> {
 
         let request = RealDataResDTO::default();
 
-        if let Some(response) = self.send_request(request) {
-            self.set_state(NetworkState::Online);
-            return Some(response);
-        }
-        None
+        self.send_request(request)
     }
 }
