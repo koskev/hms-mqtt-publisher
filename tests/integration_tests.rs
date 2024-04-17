@@ -1,4 +1,9 @@
-use hms2mqtt::{mqtt_config::MqttConfig, mqtt_wrapper::MqttWrapper};
+use std::sync::mpsc::{channel, Sender};
+
+use hms2mqtt::{
+    mqtt_config::MqttConfig,
+    mqtt_wrapper::{MqttWrapper, PublishEvent},
+};
 
 struct MqttTester {
     published_values: Vec<(String, Vec<u8>)>,
@@ -35,7 +40,11 @@ impl MqttWrapper for MqttTester {
         Ok(())
     }
 
-    fn new(_config: &hms2mqtt::mqtt_config::MqttConfig, _suffix: &str) -> Self {
+    fn new(
+        _config: &hms2mqtt::mqtt_config::MqttConfig,
+        _suffix: &str,
+        _tx: Sender<PublishEvent>,
+    ) -> Self {
         Self {
             published_values: Vec::new(),
         }
@@ -44,6 +53,7 @@ impl MqttWrapper for MqttTester {
 
 #[test]
 fn publish_one_message() {
+    let (tx, _rx) = channel();
     let mut mqtt = MqttTester::new(
         &MqttConfig {
             host: "frob".to_owned(),
@@ -54,6 +64,7 @@ fn publish_one_message() {
             base_topic: None,
         },
         "-test",
+        tx,
     );
     let result = mqtt.publish(
         "foo",

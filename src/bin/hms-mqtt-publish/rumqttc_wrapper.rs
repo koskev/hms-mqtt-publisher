@@ -1,19 +1,29 @@
-use std::{thread, time::Duration};
+use std::{sync::mpsc::Sender, thread, time::Duration};
 
 use hms2mqtt::{
     mqtt_config::MqttConfig,
-    mqtt_wrapper::{self},
+    mqtt_wrapper::{self, PublishEvent},
 };
-use log::warn;
 use rumqttc::{
     tokio_rustls::{self, rustls::ClientConfig},
-    Client, MqttOptions,
-    QoS::AtMostOnce,
-    Transport,
+    Client, Event, Incoming, MqttOptions, Transport,
 };
 
 pub struct RumqttcWrapper {
     client: Client,
+}
+
+// TODO: Is the a better way to implement Into or From for external stuff?
+struct RumqttcQosWrapper(rumqttc::QoS);
+
+impl Into<mqtt_wrapper::QoS> for RumqttcQosWrapper {
+    fn into(self) -> mqtt_wrapper::QoS {
+        match self.0 {
+            rumqttc::QoS::AtMostOnce => mqtt_wrapper::QoS::AtMostOnce,
+            rumqttc::QoS::AtLeastOnce => mqtt_wrapper::QoS::AtLeastOnce,
+            rumqttc::QoS::ExactlyOnce => mqtt_wrapper::QoS::ExactlyOnce,
+        }
+    }
 }
 
 fn match_qos(qos: mqtt_wrapper::QoS) -> rumqttc::QoS {
@@ -62,7 +72,7 @@ impl mqtt_wrapper::MqttWrapper for RumqttcWrapper {
             .try_publish(topic, match_qos(qos), retain, payload)?)
     }
 
-    fn new(config: &MqttConfig, suffix: &str) -> Self {
+    fn new(config: &MqttConfig, suffix: &str, pub_tx: Sender<PublishEvent>) -> Self {
         let use_tls = config.tls.is_some_and(|tls| tls);
 
         let mut mqttoptions = MqttOptions::new(
@@ -110,11 +120,18 @@ impl mqtt_wrapper::MqttWrapper for RumqttcWrapper {
             // the call to .iter() blocks and suspends the thread effectively by
             // calling .recv() under the hood. This implies that the loop terminates
             // once the client unsubs
-            for _ in connection.iter() {}
+            for event in connection.iter().flatten() {
+                if let Event::Incoming(Incoming::Publish(packet)) = event {
+                    let pub_event = PublishEvent {
+                        topic: packet.topic,
+                        qos: RumqttcQosWrapper(packet.qos).into(),
+                        retain: packet.retain,
+                        payload: packet.payload,
+                    };
+                    pub_tx.send(pub_event).unwrap();
+                }
+            }
         });
-        if let Err(e) = client.subscribe("hms800wt2", AtMostOnce) {
-            warn!("subscription to base topic failed: {e}");
-        }
         Self { client }
     }
 }

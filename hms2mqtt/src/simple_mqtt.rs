@@ -10,6 +10,7 @@ use chrono::Local;
 use log::{debug, warn};
 use std::{
     collections::HashMap,
+    sync::mpsc::channel,
     time::{Duration, UNIX_EPOCH},
 };
 
@@ -20,7 +21,8 @@ pub struct SimpleMqtt<MQTT: MqttWrapper> {
 
 impl<MQTT: MqttWrapper> SimpleMqtt<MQTT> {
     pub fn new(config: &MqttConfig) -> Self {
-        let client = MQTT::new(config, "-sm");
+        let (tx, rx) = channel();
+        let client = MQTT::new(config, "-sm", tx);
         Self {
             client,
             base_topic: config.base_topic.clone().unwrap_or("hms800wt2".into()),

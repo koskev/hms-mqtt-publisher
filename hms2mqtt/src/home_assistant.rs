@@ -1,3 +1,5 @@
+use std::sync::mpsc::channel;
+
 use crate::home_assistant_config::DeviceConfig;
 use crate::mqtt_wrapper::MqttWrapper;
 use crate::{mqtt_config::MqttConfig, protos::hoymiles::RealData::HMSStateResponse};
@@ -13,7 +15,8 @@ pub struct HomeAssistant<MQTT: MqttWrapper> {
 
 impl<MQTT: MqttWrapper> HomeAssistant<MQTT> {
     pub fn new(config: &MqttConfig) -> Self {
-        let client = MQTT::new(config, "-ha");
+        let (tx, rx) = channel();
+        let client = MQTT::new(config, "-ha", tx);
         Self { client }
     }
 

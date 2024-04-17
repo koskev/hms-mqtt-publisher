@@ -1,10 +1,19 @@
 use crate::mqtt_config::MqttConfig;
+use bytes::Bytes;
+use std::sync::mpsc::Sender;
 
 #[derive(Clone, Copy)]
 pub enum QoS {
     AtMostOnce,
     AtLeastOnce,
     ExactlyOnce,
+}
+
+pub struct PublishEvent {
+    pub topic: String,
+    pub qos: QoS,
+    pub retain: bool,
+    pub payload: Bytes,
 }
 
 // TODO: add an implementation of the MqttWrapper for testing
@@ -22,5 +31,5 @@ pub trait MqttWrapper {
         S: Clone + Into<String>,
         V: Clone + Into<Vec<u8>>;
 
-    fn new(config: &MqttConfig, suffix: &str) -> Self;
+    fn new(config: &MqttConfig, suffix: &str, pub_tx: Sender<PublishEvent>) -> Self;
 }
