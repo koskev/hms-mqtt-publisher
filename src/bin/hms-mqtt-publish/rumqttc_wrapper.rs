@@ -98,8 +98,19 @@ impl mqtt_wrapper::MqttWrapper for RumqttcWrapper {
         } {
             mqttoptions.set_credentials(username, password);
         }
+        let status_topic = format!("{}/status", config.base_topic);
+
+        mqttoptions.set_last_will(rumqttc::LastWill::new(
+            &status_topic,
+            "offline",
+            rumqttc::QoS::ExactlyOnce,
+            true,
+        ));
 
         let (client, mut connection) = Client::new(mqttoptions, 512);
+
+        // Birth message
+        let _ = client.publish(&status_topic, rumqttc::QoS::ExactlyOnce, true, "online");
 
         thread::spawn(move || {
             // keep polling the event loop to make sure outgoing messages get sent
