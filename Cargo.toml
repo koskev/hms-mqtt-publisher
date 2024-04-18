@@ -13,7 +13,7 @@ log = "0.4.21"
 rumqttc = "0.24.0"
 serde = { version = "1.0.198", features = ["derive"] }
 serde_derive = "1.0.196"
-toml = "0.8.10"
+toml = "0.8.12"
 rustls-native-certs = "0.7.0"
 rand = "0.8.5"
 
