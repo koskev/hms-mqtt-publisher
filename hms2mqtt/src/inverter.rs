@@ -28,25 +28,41 @@ impl InverterRequest for RealDataResDTO {
     }
 }
 
-pub struct Inverter<'a> {
+pub trait Inverter {
+    fn set_state(&mut self, new_state: NetworkState);
+    // TODO: replace HMSStateResponse with generic response for any inverter
+    fn update_state(&mut self) -> Option<HMSStateResponse>;
+}
+
+pub struct HMSInverter<'a> {
     host: &'a str,
     state: NetworkState,
     sequence: u16,
 }
 
-impl<'a> Inverter<'a> {
+impl<'a> Inverter for HMSInverter<'a> {
+    fn set_state(&mut self, new_state: NetworkState) {
+        if self.state != new_state {
+            self.state = new_state;
+            info!("Inverter is {new_state:?}");
+        }
+    }
+
+    fn update_state(&mut self) -> Option<HMSStateResponse> {
+        self.sequence = self.sequence.wrapping_add(1);
+
+        let request = RealDataResDTO::default();
+
+        self.send_request(request)
+    }
+}
+
+impl<'a> HMSInverter<'a> {
     pub fn new(host: &'a str) -> Self {
         Self {
             host,
             state: NetworkState::Unknown,
             sequence: 0_u16,
-        }
-    }
-
-    fn set_state(&mut self, new_state: NetworkState) {
-        if self.state != new_state {
-            self.state = new_state;
-            info!("Inverter is {new_state:?}");
         }
     }
 
@@ -130,5 +146,18 @@ impl<'a> Inverter<'a> {
         let request = RealDataResDTO::default();
 
         self.send_request(request)
+    }
+}
+
+pub struct FakeInverter {}
+
+impl Inverter for FakeInverter {
+    fn set_state(&mut self, _new_state: NetworkState) {}
+
+    fn update_state(&mut self) -> Option<HMSStateResponse> {
+        let mut resp = HMSStateResponse::default();
+        resp.dtu_sn = "fake".into();
+
+        Some(resp)
     }
 }

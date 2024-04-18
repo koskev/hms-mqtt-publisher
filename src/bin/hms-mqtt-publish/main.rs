@@ -4,7 +4,10 @@
 mod logging;
 mod rumqttc_wrapper;
 
+use clap::Parser;
 use hms2mqtt::home_assistant::HomeAssistant;
+use hms2mqtt::inverter::FakeInverter;
+use hms2mqtt::inverter::HMSInverter;
 use hms2mqtt::inverter::Inverter;
 use hms2mqtt::metric_collector::MetricCollector;
 use hms2mqtt::mqtt_config;
@@ -32,12 +35,18 @@ struct Config {
     simple_mqtt: Option<MqttConfig>,
 }
 
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    /// Use a fake inverter
+    #[arg(short, long)]
+    fake: bool,
+}
+
 fn main() {
     logging::init_logger();
+    let args = Cli::parse();
     info!("Running revision: {}", env!("GIT_HASH"));
-    if std::env::args().len() > 1 {
-        error!("Arguments passed. Tool is configured by config.toml in its path");
-    }
 
     // load configuration from current working dir, or relative to executable if former location fails
     let mut path = std::env::current_dir().expect("can't retrieve current dir");
@@ -59,7 +68,11 @@ fn main() {
     let config: Config = toml::from_str(&contents).expect("toml config unparsable");
 
     info!("inverter host: {}", config.inverter_host);
-    let mut inverter = Inverter::new(&config.inverter_host);
+    let mut inverter: Box<dyn Inverter> = if args.fake {
+        Box::new(FakeInverter {})
+    } else {
+        Box::new(HMSInverter::new(&config.inverter_host))
+    };
 
     let mut output_channels: Vec<Box<dyn MetricCollector>> = Vec::new();
     if let Some(config) = config.home_assistant {
