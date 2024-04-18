@@ -43,7 +43,7 @@ impl<MQTT: MqttWrapper> MetricCollector for SimpleMqtt<MQTT> {
         let pv_current_power = hms_state.pv_current_power as f32 / 10.;
         let pv_daily_yield = hms_state.pv_daily_yield;
 
-        let base_topic = format!("{}/{}", self.base_topic, hms_state.dtu_sn);
+        let base_topic = format!("{}/dtu/{}", self.base_topic, hms_state.dtu_sn);
 
         // TODO: this section bears a lot of repetition. Investigate if there's a more idiomatic way to get the same result, perhaps using a macro
         topic_payload_pairs.insert(
@@ -64,7 +64,7 @@ impl<MQTT: MqttWrapper> MetricCollector for SimpleMqtt<MQTT> {
             let pv_grid_voltage = inverter_state.grid_voltage as f32 / 10.;
             let pv_grid_freq = inverter_state.grid_freq as f32 / 100.;
             let pv_inv_temperature = inverter_state.temperature as f32 / 10.;
-            let base_topic = format!("{}/inverter_{}", base_topic, inverter_state.inv_id);
+            let base_topic = format!("{}/inverter/{}", base_topic, inverter_state.inv_id);
 
             topic_payload_pairs.insert(
                 format!("{base_topic}/grid_voltage"),
@@ -83,7 +83,7 @@ impl<MQTT: MqttWrapper> MetricCollector for SimpleMqtt<MQTT> {
             let pv_port_power = port_state.pv_power as f32 / 10.;
             let pv_port_energy = port_state.pv_energy_total as f32;
             let pv_port_daily_yield = port_state.pv_daily_yield as f32;
-            let base_topic = format!("{}/port_{}", base_topic, port_state.pv_port);
+            let base_topic = format!("{}/port/{}", base_topic, port_state.pv_port);
             topic_payload_pairs
                 .insert(format!("{base_topic}/voltage"), pv_port_voltage.to_string());
             topic_payload_pairs.insert(format!("{base_topic}/curr"), pv_port_curr.to_string());
