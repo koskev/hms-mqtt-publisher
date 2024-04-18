@@ -25,7 +25,7 @@ impl<MQTT: MqttWrapper> SimpleMqtt<MQTT> {
         let client = MQTT::new(config, "-sm", tx);
         Self {
             client,
-            base_topic: config.base_topic.clone().unwrap_or("hms800wt2".into()),
+            base_topic: config.base_topic.clone(),
         }
     }
 }

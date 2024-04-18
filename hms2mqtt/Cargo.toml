@@ -15,6 +15,7 @@ serde_json = "1.0"
 serde_derive = "1.0.193"
 chrono = "0.4.38"
 bytes = "1.6.0"
+rand = "0.8.5"
 
 [build-dependencies]
 protobuf-codegen = "3.3.0"

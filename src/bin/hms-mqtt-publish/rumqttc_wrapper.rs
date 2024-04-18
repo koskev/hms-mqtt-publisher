@@ -61,17 +61,8 @@ impl mqtt_wrapper::MqttWrapper for RumqttcWrapper {
     fn new(config: &MqttConfig, suffix: &str, pub_tx: Sender<PublishEvent>) -> Self {
         let use_tls = config.tls.is_some_and(|tls| tls);
 
-        let client_id: String = config.client_id.clone().unwrap_or(format!(
-            "hms-mqtt-{}",
-            thread_rng()
-                .sample_iter(&Alphanumeric)
-                .take(5)
-                .map(char::from)
-                .collect::<String>()
-        ));
-
         let mut mqttoptions = MqttOptions::new(
-            client_id,
+            &config.client_id,
             &config.host,
             config.port.unwrap_or_else(|| {
                 if use_tls {

@@ -61,13 +61,14 @@ fn publish_one_message() {
             username: None,
             password: None,
             tls: None,
-            base_topic: None,
+            client_id: "hms_test".into(),
+            base_topic: "hms".into(),
         },
         "-test",
         tx,
     );
     let result = mqtt.publish(
-        "foo",
+        "hms/foo",
         hms2mqtt::mqtt_wrapper::QoS::AtMostOnce,
         true,
         "Hooray".to_string(),
