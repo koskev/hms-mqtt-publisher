@@ -16,6 +16,7 @@ use mqtt_config::MqttConfig;
 use rumqttc_wrapper::RumqttcWrapper;
 use serde_derive::Deserialize;
 use std::fs;
+use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
 
@@ -41,6 +42,10 @@ struct Cli {
     /// Use a fake inverter
     #[arg(short, long)]
     fake: bool,
+
+    /// Path to the configuration file
+    #[arg(short, long, default_value = "config.toml")]
+    config: PathBuf,
 }
 
 fn main() {
@@ -48,23 +53,8 @@ fn main() {
     let args = Cli::parse();
     info!("Running revision: {}", env!("GIT_HASH"));
 
-    // load configuration from current working dir, or relative to executable if former location fails
-    let mut path = std::env::current_dir().expect("can't retrieve current dir");
-    path.push("config.toml");
-    if !path.exists() {
-        info!(
-            "{} does not exist. Trying relative path",
-            path.to_str().expect("Cannot retrieve path")
-        );
-        path = std::env::current_exe().expect("Unable to get current executable path");
-        path.pop();
-        path.push("config.toml");
-    }
-    info!(
-        "loading configuration from {}",
-        path.to_str().expect("Cannot retrieve path")
-    );
-    let contents = fs::read_to_string(path).expect("Could not read config.toml");
+    // TODO: proper error handling
+    let contents = fs::read_to_string(args.config).expect("Could not read provided config file");
     let config: Config = toml::from_str(&contents).expect("toml config unparsable");
 
     info!("inverter host: {}", config.inverter_host);
