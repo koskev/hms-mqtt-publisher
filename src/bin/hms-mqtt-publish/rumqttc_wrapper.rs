@@ -4,6 +4,8 @@ use hms2mqtt::{
     mqtt_config::MqttConfig,
     mqtt_wrapper::{self, PublishEvent},
 };
+use log::{debug, warn};
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use rumqttc::{
     tokio_rustls::{self, rustls::ClientConfig},
     Client, Event, Incoming, MqttOptions, Transport,
@@ -50,33 +52,26 @@ impl mqtt_wrapper::MqttWrapper for RumqttcWrapper {
         S: Clone + Into<String>,
         V: Clone + Into<Vec<u8>>,
     {
-        // try publishing up to three times
-        if self
-            .client
-            .try_publish(topic.clone(), match_qos(qos), retain, payload.clone())
-            .is_ok()
-        {
-            return Ok(());
-        }
-        std::thread::sleep(Duration::from_millis(100));
-        if self
-            .client
-            .try_publish(topic.clone(), match_qos(qos), retain, payload.clone())
-            .is_ok()
-        {
-            return Ok(());
-        }
-        std::thread::sleep(Duration::from_millis(100));
-        Ok(self
-            .client
-            .try_publish(topic, match_qos(qos), retain, payload)?)
+        self.client
+            .publish(topic, match_qos(qos), retain, payload.clone())
+            .unwrap();
+        Ok(())
     }
 
     fn new(config: &MqttConfig, suffix: &str, pub_tx: Sender<PublishEvent>) -> Self {
         let use_tls = config.tls.is_some_and(|tls| tls);
 
+        let client_id: String = config.client_id.clone().unwrap_or(format!(
+            "hms-mqtt-{}",
+            thread_rng()
+                .sample_iter(&Alphanumeric)
+                .take(5)
+                .map(char::from)
+                .collect::<String>()
+        ));
+
         let mut mqttoptions = MqttOptions::new(
-            "hms800wt2-mqtt-publisher".to_string() + suffix,
+            client_id,
             &config.host,
             config.port.unwrap_or_else(|| {
                 if use_tls {
