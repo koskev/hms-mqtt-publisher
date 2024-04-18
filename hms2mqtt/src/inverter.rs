@@ -149,14 +149,16 @@ impl<'a> HMSInverter<'a> {
     }
 }
 
-pub struct FakeInverter {}
+pub struct FakeInverter {
+    pub sn: String,
+}
 
 impl Inverter for FakeInverter {
     fn set_state(&mut self, _new_state: NetworkState) {}
 
     fn update_state(&mut self) -> Option<HMSStateResponse> {
         let mut resp = HMSStateResponse::default();
-        resp.dtu_sn = "fake".into();
+        resp.dtu_sn = self.sn.clone();
 
         Some(resp)
     }

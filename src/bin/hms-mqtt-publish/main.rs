@@ -29,7 +29,7 @@ fn default_update_interval() -> u64 {
 
 #[derive(Debug, Deserialize)]
 struct Config {
-    inverter_host: String,
+    inverter_hosts: Vec<String>,
     #[serde(default = "default_update_interval")]
     update_interval: u64,
     home_assistant: Option<MqttConfig>,
@@ -39,7 +39,7 @@ struct Config {
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    /// Use a fake inverter
+    /// Use a fake inverter for every inverter in config
     #[arg(short, long)]
     fake: bool,
 
@@ -57,12 +57,20 @@ fn main() {
     let contents = fs::read_to_string(args.config).expect("Could not read provided config file");
     let config: Config = toml::from_str(&contents).expect("toml config unparsable");
 
-    info!("inverter host: {}", config.inverter_host);
-    let mut inverter: Box<dyn Inverter> = if args.fake {
-        Box::new(FakeInverter {})
-    } else {
-        Box::new(HMSInverter::new(&config.inverter_host))
-    };
+    info!("inverter hosts: {:?}", config.inverter_hosts);
+    let mut inverters: Vec<Box<dyn Inverter>> = config
+        .inverter_hosts
+        .iter()
+        .map(|host| {
+            let res: Box<dyn Inverter>;
+            if args.fake {
+                res = Box::new(FakeInverter { sn: host.clone() });
+            } else {
+                res = Box::new(HMSInverter::new(host));
+            }
+            res
+        })
+        .collect();
 
     let mut output_channels: Vec<Box<dyn MetricCollector>> = Vec::new();
     if let Some(config) = config.home_assistant {
@@ -76,11 +84,13 @@ fn main() {
     }
 
     loop {
-        if let Some(r) = inverter.update_state() {
-            output_channels.iter_mut().for_each(|channel| {
-                channel.publish(&r);
-            })
-        }
+        inverters.iter_mut().for_each(|inverter| {
+            if let Some(r) = inverter.update_state() {
+                output_channels.iter_mut().for_each(|channel| {
+                    channel.publish(&r);
+                })
+            }
+        });
 
         // TODO: the sleep has to move into the Inverter struct in an async implementation
         thread::sleep(Duration::from_millis(config.update_interval));
