@@ -18,4 +18,4 @@ bytes = "1.6.0"
 rand = "0.8.5"
 
 [build-dependencies]
-protobuf-codegen = "3.3.0"
+protobuf-codegen = "3.4.0"
