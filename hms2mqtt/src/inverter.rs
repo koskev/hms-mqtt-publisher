@@ -157,8 +157,10 @@ impl Inverter for FakeInverter {
     fn set_state(&mut self, _new_state: NetworkState) {}
 
     fn update_state(&mut self) -> Option<HMSStateResponse> {
-        let mut resp = HMSStateResponse::default();
-        resp.dtu_sn = self.sn.clone();
+        let resp = HMSStateResponse {
+            dtu_sn: self.sn.clone(),
+            ..Default::default()
+        };
 
         Some(resp)
     }

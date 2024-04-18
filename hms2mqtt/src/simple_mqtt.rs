@@ -21,8 +21,8 @@ pub struct SimpleMqtt<MQTT: MqttWrapper> {
 
 impl<MQTT: MqttWrapper> SimpleMqtt<MQTT> {
     pub fn new(config: &MqttConfig) -> Self {
-        let (tx, rx) = channel();
-        let client = MQTT::new(config, "-sm", tx);
+        let (tx, _rx) = channel();
+        let client = MQTT::new(config, tx);
         Self {
             client,
             base_topic: config.base_topic.clone(),

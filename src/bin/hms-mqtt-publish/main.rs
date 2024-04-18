@@ -20,7 +20,7 @@ use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
 
-use log::{error, info};
+use log::info;
 
 // TODO: update once https://togithub.com/serde-rs/serde/issues/368 is closed
 fn default_update_interval() -> u64 {
@@ -62,12 +62,11 @@ fn main() {
         .inverter_hosts
         .iter()
         .map(|host| {
-            let res: Box<dyn Inverter>;
-            if args.fake {
-                res = Box::new(FakeInverter { sn: host.clone() });
+            let res: Box<dyn Inverter> = if args.fake {
+                Box::new(FakeInverter { sn: host.clone() })
             } else {
-                res = Box::new(HMSInverter::new(host));
-            }
+                Box::new(HMSInverter::new(host))
+            };
             res
         })
         .collect();

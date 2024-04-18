@@ -4,8 +4,6 @@ use hms2mqtt::{
     mqtt_config::MqttConfig,
     mqtt_wrapper::{self, PublishEvent},
 };
-use log::{debug, warn};
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use rumqttc::{
     tokio_rustls::{self, rustls::ClientConfig},
     Client, Event, Incoming, MqttOptions, Transport,
@@ -18,9 +16,9 @@ pub struct RumqttcWrapper {
 // TODO: Is the a better way to implement Into or From for external stuff?
 struct RumqttcQosWrapper(rumqttc::QoS);
 
-impl Into<mqtt_wrapper::QoS> for RumqttcQosWrapper {
-    fn into(self) -> mqtt_wrapper::QoS {
-        match self.0 {
+impl From<RumqttcQosWrapper> for mqtt_wrapper::QoS {
+    fn from(value: RumqttcQosWrapper) -> Self {
+        match value.0 {
             rumqttc::QoS::AtMostOnce => mqtt_wrapper::QoS::AtMostOnce,
             rumqttc::QoS::AtLeastOnce => mqtt_wrapper::QoS::AtLeastOnce,
             rumqttc::QoS::ExactlyOnce => mqtt_wrapper::QoS::ExactlyOnce,
@@ -58,7 +56,7 @@ impl mqtt_wrapper::MqttWrapper for RumqttcWrapper {
         Ok(())
     }
 
-    fn new(config: &MqttConfig, suffix: &str, pub_tx: Sender<PublishEvent>) -> Self {
+    fn new(config: &MqttConfig, pub_tx: Sender<PublishEvent>) -> Self {
         let use_tls = config.tls.is_some_and(|tls| tls);
 
         let mut mqttoptions = MqttOptions::new(
