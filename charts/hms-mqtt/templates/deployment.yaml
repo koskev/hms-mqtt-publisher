@@ -21,7 +21,8 @@ spec:
         command:
           - "hms-mqtt-publish"
         args:
-          - "--config /config.yaml"
+          - "--config"
+          - "/config.yaml"
         resources:
           requests:
             memory: "16Mi"
