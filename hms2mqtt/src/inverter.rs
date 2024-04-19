@@ -87,7 +87,7 @@ impl<'a> HMSInverter<'a> {
         let address = match inverter_host.to_socket_addrs() {
             Ok(mut a) => a.next(),
             Err(e) => {
-                error!("Unable to resolve domain: {e}");
+                debug!("Unable to resolve domain: {e}");
                 return None;
             }
         };
