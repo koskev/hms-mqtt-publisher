@@ -10,6 +10,7 @@ use hms2mqtt::inverter::FakeInverter;
 use hms2mqtt::inverter::HMSInverter;
 use hms2mqtt::inverter::Inverter;
 use hms2mqtt::metric_collector::MetricCollector;
+use hms2mqtt::mqtt::Mqtt;
 use hms2mqtt::mqtt_config;
 use hms2mqtt::simple_mqtt::SimpleMqtt;
 use mqtt_config::MqttConfig;
@@ -34,6 +35,7 @@ struct Config {
     update_interval: u64,
     home_assistant: Option<MqttConfig>,
     simple_mqtt: Option<MqttConfig>,
+    mqtt: Option<MqttConfig>,
 }
 
 #[derive(Parser)]
@@ -75,6 +77,11 @@ fn main() {
     if let Some(config) = config.home_assistant {
         info!("Publishing to Home Assistant");
         output_channels.push(Box::new(HomeAssistant::<RumqttcWrapper>::new(&config)));
+    }
+
+    if let Some(config) = config.mqtt {
+        info!("Publishing to MQTT broker");
+        output_channels.push(Box::new(Mqtt::<RumqttcWrapper>::new(&config)));
     }
 
     if let Some(config) = config.simple_mqtt {
