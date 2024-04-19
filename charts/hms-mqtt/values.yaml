@@ -14,5 +14,6 @@ hms_mqtt:
   #  username: ""
   #  password: ""
   #  base_topic: "hms800wt2"
-  #  serial_alias:
-  #    1234: friendly_name
+  #  serial_aliases:
+  #   - serial: 1234
+  #     alias: friendly_name

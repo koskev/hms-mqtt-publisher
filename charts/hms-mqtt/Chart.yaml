@@ -1,5 +1,5 @@
 apiVersion: v2
-name: hms-mqtt
+name: hms-mqtt-chart
 description: A Helm chart for deploying hms-mqtt-publisher
 
 # A chart can be either an 'application' or a 'library' chart.
