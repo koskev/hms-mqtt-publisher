@@ -59,6 +59,7 @@ fn publish_one_message() {
             tls: None,
             client_id: "hms_test".into(),
             base_topic: "hms".into(),
+            ..Default::default()
         },
         tx,
     );

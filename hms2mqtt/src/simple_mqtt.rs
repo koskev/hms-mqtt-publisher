@@ -43,7 +43,13 @@ impl<MQTT: MqttWrapper> MetricCollector for SimpleMqtt<MQTT> {
         let pv_current_power = hms_state.pv_current_power as f32 / 10.;
         let pv_daily_yield = hms_state.pv_daily_yield;
 
-        let base_topic = format!("{}/dtu/{}", self.config.base_topic, hms_state.dtu_sn);
+        let serial = self
+            .config
+            .serial_alias
+            .get(&hms_state.dtu_sn)
+            .unwrap_or(&hms_state.dtu_sn);
+
+        let base_topic = format!("{}/dtu/{}", self.config.base_topic, serial);
 
         // TODO: this section bears a lot of repetition. Investigate if there's a more idiomatic way to get the same result, perhaps using a macro
         topic_payload_pairs.insert(

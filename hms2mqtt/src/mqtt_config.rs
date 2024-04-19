@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use serde_derive::Deserialize;
 
@@ -16,7 +18,7 @@ fn default_client_id() -> String {
     )
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone, Default)]
 pub struct MqttConfig {
     pub host: String,
     pub port: Option<u16>,
@@ -27,4 +29,6 @@ pub struct MqttConfig {
     pub base_topic: String,
     #[serde(default = "default_client_id")]
     pub client_id: String,
+    /// Maps serials to an alis
+    pub serial_alias: HashMap<String, String>,
 }
