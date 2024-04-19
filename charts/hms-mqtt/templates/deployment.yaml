@@ -18,6 +18,8 @@ spec:
       - name: {{ .Release.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        command:
+          - "hms-mqtt-publish"
         args:
           - "--config /config.yaml"
         resources:
