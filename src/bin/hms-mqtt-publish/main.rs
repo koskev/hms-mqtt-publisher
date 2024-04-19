@@ -59,7 +59,7 @@ fn load_config(path: &PathBuf) -> Result<Config, Box<dyn Error>> {
     if extension == "toml" {
         config = toml::from_str(&contents)?;
     } else if extension == "yaml" || extension == "yml" {
-        config = serde_yaml::from_str(path.to_str().unwrap())?;
+        config = serde_yaml::from_str(&contents)?;
     } else {
         // TODO: proper error
         panic!("Unknown config file");
