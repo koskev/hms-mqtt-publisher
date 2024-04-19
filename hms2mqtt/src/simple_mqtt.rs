@@ -16,7 +16,7 @@ use std::{
 
 pub struct SimpleMqtt<MQTT: MqttWrapper> {
     client: MQTT,
-    base_topic: String,
+    config: MqttConfig,
 }
 
 impl<MQTT: MqttWrapper> SimpleMqtt<MQTT> {
@@ -25,7 +25,7 @@ impl<MQTT: MqttWrapper> SimpleMqtt<MQTT> {
         let client = MQTT::new(config, tx);
         Self {
             client,
-            base_topic: config.base_topic.clone(),
+            config: config.clone(),
         }
     }
 }
@@ -43,7 +43,7 @@ impl<MQTT: MqttWrapper> MetricCollector for SimpleMqtt<MQTT> {
         let pv_current_power = hms_state.pv_current_power as f32 / 10.;
         let pv_daily_yield = hms_state.pv_daily_yield;
 
-        let base_topic = format!("{}/dtu/{}", self.base_topic, hms_state.dtu_sn);
+        let base_topic = format!("{}/dtu/{}", self.config.base_topic, hms_state.dtu_sn);
 
         // TODO: this section bears a lot of repetition. Investigate if there's a more idiomatic way to get the same result, perhaps using a macro
         topic_payload_pairs.insert(
