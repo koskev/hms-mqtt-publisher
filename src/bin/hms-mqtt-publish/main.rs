@@ -5,6 +5,7 @@ mod logging;
 mod rumqttc_wrapper;
 
 use clap::Parser;
+use core::panic;
 use hms2mqtt::home_assistant::HomeAssistant;
 use hms2mqtt::inverter::FakeInverter;
 use hms2mqtt::inverter::HMSInverter;
@@ -16,6 +17,7 @@ use hms2mqtt::simple_mqtt::SimpleMqtt;
 use mqtt_config::MqttConfig;
 use rumqttc_wrapper::RumqttcWrapper;
 use serde_derive::Deserialize;
+use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 use std::thread;
@@ -50,14 +52,28 @@ struct Cli {
     config: PathBuf,
 }
 
+fn load_config(path: &PathBuf) -> Result<Config, Box<dyn Error>> {
+    let contents = fs::read_to_string(path)?;
+    let extension = path.extension().unwrap_or_default();
+    let config;
+    if extension == "toml" {
+        config = toml::from_str(&contents)?;
+    } else if extension == "yaml" || extension == "yml" {
+        config = serde_yaml::from_str(path.to_str().unwrap())?;
+    } else {
+        // TODO: proper error
+        panic!("Unknown config file");
+    }
+    Ok(config)
+}
+
 fn main() {
     logging::init_logger();
     let args = Cli::parse();
     info!("Running revision: {}", env!("GIT_HASH"));
 
     // TODO: proper error handling
-    let contents = fs::read_to_string(args.config).expect("Could not read provided config file");
-    let config: Config = toml::from_str(&contents).expect("toml config unparsable");
+    let config: Config = load_config(&args.config).expect("Failed to load config");
 
     info!("inverter hosts: {:?}", config.inverter_hosts);
     let mut inverters: Vec<Box<dyn Inverter>> = config
