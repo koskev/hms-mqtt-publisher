@@ -14,21 +14,19 @@ spec:
       labels:
         app: {{ .Release.Name }}
     spec:
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       containers:
       - name: {{ .Release.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        args:
+          - "--config /config.yaml"
         resources:
           requests:
             memory: "16Mi"
         volumeMounts:
           - name: hms-mqtt-config
-            mountPath: /config.toml
-            subPath: config.toml
+            mountPath: /config.yaml
+            subPath: config.yaml
       volumes:
       - name: hms-mqtt-config
         secret:
