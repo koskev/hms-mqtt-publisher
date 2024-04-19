@@ -40,11 +40,7 @@ impl MqttWrapper for MqttTester {
         Ok(())
     }
 
-    fn new(
-        _config: &hms2mqtt::mqtt_config::MqttConfig,
-        _suffix: &str,
-        _tx: Sender<PublishEvent>,
-    ) -> Self {
+    fn new(_config: &hms2mqtt::mqtt_config::MqttConfig, _tx: Sender<PublishEvent>) -> Self {
         Self {
             published_values: Vec::new(),
         }
@@ -64,7 +60,6 @@ fn publish_one_message() {
             client_id: "hms_test".into(),
             base_topic: "hms".into(),
         },
-        "-test",
         tx,
     );
     let result = mqtt.publish(
