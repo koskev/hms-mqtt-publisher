@@ -1,0 +1,6 @@
+host: "::1"
+username: test
+password: testpw
+serial_aliases:
+  - serial: 123
+    alias: test_alias

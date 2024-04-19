@@ -45,7 +45,7 @@ impl<MQTT: MqttWrapper> MetricCollector for Mqtt<MQTT> {
 
         let serial = self
             .config
-            .serial_alias
+            .serial_aliases
             .get(&hms_state.dtu_sn)
             .unwrap_or(&hms_state.dtu_sn);
 
