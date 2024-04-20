@@ -60,7 +60,7 @@ mod test {
 
     #[test]
     fn test_deserialize() {
-        let conf_str = include_str!("../test/configs/test_mqtt_conf.yaml");
+        let conf_str = include_str!("../../../test/configs/test_mqtt_conf.yaml");
         let conf: MqttConfig = serde_yaml::from_str(conf_str).unwrap();
 
         assert_eq!(conf.host, "::1");

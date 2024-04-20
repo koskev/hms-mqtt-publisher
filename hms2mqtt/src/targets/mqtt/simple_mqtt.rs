@@ -1,8 +1,10 @@
 use crate::{
     metric_collector::MetricCollector,
-    mqtt_config::MqttConfig,
-    mqtt_wrapper::{MqttWrapper, QoS},
     protos::hoymiles::RealData::HMSStateResponse,
+    targets::mqtt::{
+        mqtt_config::MqttConfig,
+        mqtt_wrapper::{MqttWrapper, QoS},
+    },
 };
 
 use chrono::prelude::DateTime;

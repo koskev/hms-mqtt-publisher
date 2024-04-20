@@ -1,13 +1,14 @@
 use std::sync::mpsc::channel;
 
-use crate::home_assistant_config::DeviceConfig;
-use crate::mqtt_wrapper::MqttWrapper;
-use crate::{mqtt_config::MqttConfig, protos::hoymiles::RealData::HMSStateResponse};
+use crate::protos::hoymiles::RealData::HMSStateResponse;
+use crate::targets::mqtt::home_assistant_config::{DeviceConfig, SensorConfig};
+use crate::targets::mqtt::mqtt_wrapper::{MqttWrapper, QoS};
 
-use crate::home_assistant_config::SensorConfig;
 use crate::metric_collector::MetricCollector;
 use log::{debug, error};
 use serde_json::json;
+
+use super::mqtt_config::MqttConfig;
 
 pub struct HomeAssistant<MQTT: MqttWrapper> {
     client: MQTT,
@@ -24,10 +25,7 @@ impl<MQTT: MqttWrapper> HomeAssistant<MQTT> {
         debug!("Publishing to {topic} with payload {payload}");
 
         let payload = serde_json::to_string(&payload).unwrap();
-        if let Err(e) =
-            self.client
-                .publish(topic, crate::mqtt_wrapper::QoS::AtMostOnce, true, payload)
-        {
+        if let Err(e) = self.client.publish(topic, QoS::AtMostOnce, true, payload) {
             error!("Failed to publish message: {e:?}");
         }
     }

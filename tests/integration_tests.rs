@@ -1,8 +1,8 @@
 use std::sync::mpsc::{channel, Sender};
 
-use hms2mqtt::{
+use hms2mqtt::targets::mqtt::{
     mqtt_config::MqttConfig,
-    mqtt_wrapper::{MqttWrapper, PublishEvent},
+    mqtt_wrapper::{MqttWrapper, PublishEvent, QoS},
 };
 
 struct MqttTester {
@@ -21,14 +21,14 @@ impl MqttTester {
 }
 
 impl MqttWrapper for MqttTester {
-    fn subscribe(&mut self, _topic: &str, _qos: hms2mqtt::mqtt_wrapper::QoS) -> anyhow::Result<()> {
+    fn subscribe(&mut self, _topic: &str, _qos: QoS) -> anyhow::Result<()> {
         Ok(())
     }
 
     fn publish<S, V>(
         &mut self,
         topic: S,
-        _qos: hms2mqtt::mqtt_wrapper::QoS,
+        _qos: QoS,
         _retain: bool,
         payload: V,
     ) -> anyhow::Result<()>
@@ -40,7 +40,7 @@ impl MqttWrapper for MqttTester {
         Ok(())
     }
 
-    fn new(_config: &hms2mqtt::mqtt_config::MqttConfig, _tx: Sender<PublishEvent>) -> Self {
+    fn new(_config: &MqttConfig, _tx: Sender<PublishEvent>) -> Self {
         Self {
             published_values: Vec::new(),
         }
@@ -63,12 +63,7 @@ fn publish_one_message() {
         },
         tx,
     );
-    let result = mqtt.publish(
-        "hms/foo",
-        hms2mqtt::mqtt_wrapper::QoS::AtMostOnce,
-        true,
-        "Hooray".to_string(),
-    );
+    let result = mqtt.publish("hms/foo", QoS::AtMostOnce, true, "Hooray".to_string());
     assert!(result.is_ok());
     assert!(!mqtt.is_empty());
     assert_eq!(mqtt.len(), 1);

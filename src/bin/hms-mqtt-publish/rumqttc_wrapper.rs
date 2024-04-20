@@ -1,6 +1,6 @@
 use std::{sync::mpsc::Sender, thread, time::Duration};
 
-use hms2mqtt::{
+use hms2mqtt::targets::mqtt::{
     mqtt_config::MqttConfig,
     mqtt_wrapper::{self, PublishEvent},
 };

@@ -1,6 +1,7 @@
-use crate::mqtt_config::MqttConfig;
 use bytes::Bytes;
 use std::sync::mpsc::Sender;
+
+use super::mqtt_config::MqttConfig;
 
 #[derive(Clone, Copy)]
 pub enum QoS {
