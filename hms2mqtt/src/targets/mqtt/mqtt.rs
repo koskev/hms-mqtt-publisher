@@ -1,9 +1,11 @@
 use crate::{
-    metric_collector::MetricCollector,
     protos::hoymiles::RealData::HMSStateResponse,
-    targets::mqtt::{
-        mqtt_config::MqttConfig,
-        mqtt_wrapper::{MqttWrapper, QoS},
+    targets::{
+        metric_publisher::MetricPublisher,
+        mqtt::{
+            mqtt_config::MqttConfig,
+            mqtt_wrapper::{MqttWrapper, QoS},
+        },
     },
 };
 
@@ -32,7 +34,7 @@ impl<MQTT: MqttWrapper> Mqtt<MQTT> {
     }
 }
 
-impl<MQTT: MqttWrapper> MetricCollector for Mqtt<MQTT> {
+impl<MQTT: MqttWrapper> MetricPublisher for Mqtt<MQTT> {
     fn publish(&mut self, hms_state: &HMSStateResponse) {
         debug!("{hms_state}");
 

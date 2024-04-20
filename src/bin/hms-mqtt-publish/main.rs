@@ -6,8 +6,8 @@ mod rumqttc_wrapper;
 
 use clap::Parser;
 use core::panic;
-use hms2mqtt::metric_collector::MetricCollector;
 use hms2mqtt::sources::inverter::{FakeInverter, HMSInverter, Inverter};
+use hms2mqtt::targets::metric_publisher::MetricPublisher;
 use hms2mqtt::targets::mqtt::home_assistant::HomeAssistant;
 use hms2mqtt::targets::mqtt::mqtt::Mqtt;
 use hms2mqtt::targets::mqtt::mqtt_config::MqttConfig;
@@ -86,7 +86,7 @@ fn main() {
         })
         .collect();
 
-    let mut output_channels: Vec<Box<dyn MetricCollector>> = Vec::new();
+    let mut output_channels: Vec<Box<dyn MetricPublisher>> = Vec::new();
     if let Some(config) = config.home_assistant {
         info!("Publishing to Home Assistant");
         output_channels.push(Box::new(HomeAssistant::<RumqttcWrapper>::new(&config)));

@@ -1,10 +1,10 @@
 use std::sync::mpsc::channel;
 
 use crate::protos::hoymiles::RealData::HMSStateResponse;
+use crate::targets::metric_publisher::MetricPublisher;
 use crate::targets::mqtt::home_assistant_config::{DeviceConfig, SensorConfig};
 use crate::targets::mqtt::mqtt_wrapper::{MqttWrapper, QoS};
 
-use crate::metric_collector::MetricCollector;
 use log::{debug, error};
 use serde_json::json;
 
@@ -46,7 +46,7 @@ impl<MQTT: MqttWrapper> HomeAssistant<MQTT> {
     }
 }
 
-impl<MQTT: MqttWrapper> MetricCollector for HomeAssistant<MQTT> {
+impl<MQTT: MqttWrapper> MetricPublisher for HomeAssistant<MQTT> {
     fn publish(&mut self, hms_state: &HMSStateResponse) {
         let config_topic = format!("homeassistant/sensor/hms_{}", hms_state.short_dtu_sn());
         let state_topic = format!("solar/hms_{}/state", hms_state.short_dtu_sn());
