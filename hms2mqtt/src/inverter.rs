@@ -71,6 +71,7 @@ impl<'a> HMSInverter<'a> {
         REQ: Message + InverterRequest,
         RES: Message,
     {
+        self.sequence = self.sequence.wrapping_add(1);
         let request_as_bytes = request.write_to_bytes().expect("serialize to bytes");
         let crc16 = State::<MODBUS>::calculate(&request_as_bytes);
         let len = request_as_bytes.len() as u16 + 10u16;
@@ -141,8 +142,6 @@ impl<'a> HMSInverter<'a> {
     }
 
     pub fn update_state(&mut self) -> Option<HMSStateResponse> {
-        self.sequence = self.sequence.wrapping_add(1);
-
         let request = RealDataResDTO::default();
 
         self.send_request(request)
