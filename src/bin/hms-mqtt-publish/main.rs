@@ -6,7 +6,9 @@ mod rumqttc_wrapper;
 
 use clap::Parser;
 use core::panic;
-use hms2mqtt::sources::inverter::{FakeInverter, HMSInverter, Inverter};
+use hms2mqtt::sources::fake::FakeInverter;
+use hms2mqtt::sources::hms::inverter::HMSInverter;
+use hms2mqtt::sources::inverter::Inverter;
 use hms2mqtt::targets::metric_publisher::MetricPublisher;
 use hms2mqtt::targets::mqtt::home_assistant::HomeAssistant;
 use hms2mqtt::targets::mqtt::mqtt::Mqtt;
