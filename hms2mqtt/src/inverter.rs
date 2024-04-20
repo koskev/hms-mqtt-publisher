@@ -49,8 +49,6 @@ impl<'a> Inverter for HMSInverter<'a> {
     }
 
     fn update_state(&mut self) -> Option<HMSStateResponse> {
-        self.sequence = self.sequence.wrapping_add(1);
-
         let request = RealDataResDTO::default();
 
         self.send_request(request)
@@ -139,12 +137,6 @@ impl<'a> HMSInverter<'a> {
                 None
             }
         }
-    }
-
-    pub fn update_state(&mut self) -> Option<HMSStateResponse> {
-        let request = RealDataResDTO::default();
-
-        self.send_request(request)
     }
 }
 
