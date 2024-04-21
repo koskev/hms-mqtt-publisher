@@ -37,7 +37,10 @@ impl<MQTT: MqttWrapper> MetricPublisher for Mqtt<MQTT> {
             .into_iter()
             .for_each(|(topic, payload)| {
                 debug!("Publishing to {} value: {}", topic, payload);
-                if let Err(e) = self.client.publish(topic, QoS::AtMostOnce, true, payload) {
+                if let Err(e) =
+                    self.client
+                        .publish(topic, QoS::AtMostOnce, true, payload.to_string())
+                {
                     warn!("mqtt error: {e:?}")
                 }
             });
