@@ -10,7 +10,7 @@ anyhow = "1.0.82"
 crc16 = "0.4.0"
 log = "0.4.21"
 protobuf = "3.4.0"
-serde = { version = "1.0.199", features = ["derive"] }
+serde = { version = "1.0.200", features = ["derive"] }
 serde_json = "1.0.116"
 serde_derive = "1.0.199"
 chrono = "0.4.38"
