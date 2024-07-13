@@ -24,6 +24,16 @@ entries:
   hms-mqtt-chart:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2024-07-13T07:52:47.190157649Z"
+    description: A Helm chart for deploying hms-mqtt-publisher
+    digest: 548193702fd53ccd0bec51bf943ceb3ced61e8d6373e7a5378fb19468e2df53f
+    name: hms-mqtt-chart
+    type: application
+    urls:
+    - https://github.com/koskev/hms-mqtt-publisher/releases/download/hms-mqtt-chart-0.1.4/hms-mqtt-chart-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2024-04-19T18:26:03.796349249Z"
     description: A Helm chart for deploying hms-mqtt-publisher
     digest: 2e615d86cd67b60913c1487849f40f927c2b13f7d33b071ef1e130d04dfc87b9
@@ -52,4 +62,4 @@ entries:
     urls:
     - https://github.com/koskev/hms-mqtt-publisher/releases/download/hms-mqtt-chart-0.1.1/hms-mqtt-chart-0.1.1.tgz
     version: 0.1.1
-generated: "2024-04-19T18:26:03.796409171Z"
+generated: "2024-07-13T07:52:47.190181453Z"
