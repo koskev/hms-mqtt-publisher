@@ -18,6 +18,9 @@ spec:
       - name: {{ .Release.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        env:
+          - name: RUST_LOG
+            value: {{ .Values.log_level }}
         command:
           - "hms-mqtt-publish"
         args:

@@ -3,6 +3,7 @@ image:
   pullPolicy: IfNotPresent
   tag: "2024.07.08"
 
+log_level: info
 
 hms_mqtt:
   inverter_hosts:
