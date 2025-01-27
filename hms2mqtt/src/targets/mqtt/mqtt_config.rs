@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use rand::{distr::Alphanumeric, rng, Rng};
 use serde::{Deserialize, Deserializer};
 
 fn default_topic() -> String {
@@ -10,7 +10,7 @@ fn default_topic() -> String {
 fn default_client_id() -> String {
     format!(
         "hms-mqtt-{}",
-        thread_rng()
+        rng()
             .sample_iter(&Alphanumeric)
             .take(5)
             .map(char::from)
