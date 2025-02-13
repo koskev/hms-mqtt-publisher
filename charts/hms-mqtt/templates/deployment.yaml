@@ -36,4 +36,4 @@ spec:
       volumes:
       - name: hms-mqtt-config
         secret:
-          secretName: {{ .Release.Name }}-secret
+          secretName: {{ template "hms.secretName" . }}
