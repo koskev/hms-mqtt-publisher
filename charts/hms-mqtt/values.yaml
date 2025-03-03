@@ -1,7 +1,7 @@
 image:
   repository: ghcr.io/koskev/hms-mqtt-publisher
   pullPolicy: IfNotPresent
-  tag: "2025.02.24"
+  tag: "2025.03.03"
 
 log_level: info
 
