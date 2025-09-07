@@ -137,7 +137,7 @@ impl<'a> HMSInverter<'a> {
 
         let stream = TcpStream::connect_timeout(&address.unwrap(), Duration::from_millis(500));
         if let Err(e) = stream {
-            debug!("could not connect: {e}");
+            error!("could not connect: {e}");
             self.set_state(NetworkState::Offline);
             return None;
         }
