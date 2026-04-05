@@ -38,6 +38,10 @@ The parameters to access the inverter and MQTT instance are pulled from environm
 - `$MQTT_PASSWORD` (optional)
 - `$MQTT_PORT` (optional)
 
+#### Building
+
+The docker image is built using nix to ensure reproducible builds. Run `nix run .#dockerImageFull.copyToPodman` to build the image and copy it to podman.
+
 ## Note of caution
 Please note: The tool does not come with any guarantees and if by chance you fry your inverter with a funny series of bits, you are on your own. That being said, no inverters have been harmed during development. 
 
