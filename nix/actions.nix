@@ -56,7 +56,7 @@ in
       };
       ".github/workflows/chart.yaml" = {
         name = "Release Charts";
-        on.push.branches = [ "main" ];
+        on.push.tags = [ "*" ];
         jobs.release = {
           permissions.contents = "write";
           steps = [
