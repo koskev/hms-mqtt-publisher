@@ -395,7 +395,7 @@ dependencies = [
  "log",
  "rand",
  "rumqttc",
- "rustls-native-certs 0.8.1",
+ "rustls-native-certs 0.8.3",
  "serde",
  "serde_derive",
  "serde_yaml",
@@ -566,6 +566,12 @@ name = "openssl-probe"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
+
+[[package]]
+name = "openssl-probe"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c87def4c32ab89d880effc9e097653c8da5d6ef28e6b539d313baaacfbafcbe"
 
 [[package]]
 name = "pin-project-lite"
@@ -786,7 +792,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f1fb85efa936c42c6d5fc28d2629bb51e4b2f4b8a5211e297d599cc5a093792"
 dependencies = [
- "openssl-probe",
+ "openssl-probe 0.1.5",
  "rustls-pemfile",
  "rustls-pki-types",
  "schannel",
@@ -795,11 +801,11 @@ dependencies = [
 
 [[package]]
 name = "rustls-native-certs"
-version = "0.8.1"
+version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fcff2dd52b58a8d98a70243663a0d234c4e2b79235637849d15913394a247d3"
+checksum = "612460d5f7bea540c490b2b6395d8e34a953e52b491accd6c86c8164c5932a63"
 dependencies = [
- "openssl-probe",
+ "openssl-probe 0.2.1",
  "rustls-pki-types",
  "schannel",
  "security-framework 3.2.0",
